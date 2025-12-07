@@ -5,14 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Visa Thị Thực Đức</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
-    <script>
-      (function () {
-        emailjs.init("bhCx9riR7iX8jxz6k"); // 🔥 Thay key của bạn
-      })();
-    </script>
   </head>
 
   <body class="bg-gray-50 text-gray-800">
@@ -116,7 +108,6 @@
         Đăng ký tư vấn miễn phí
       </h3>
 
-      <!-- 🔥 THÊM ID CHO FORM -->
       <form id="contact-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label class="block font-medium mb-2">Họ và tên</label>
@@ -164,7 +155,6 @@
         </div>
       </form>
 
-      <!-- Thông báo -->
       <p id="status" class="mt-4 text-center text-lg"></p>
     </section>
 
@@ -173,7 +163,7 @@
     </footer>
 
     <script>
-      /* Slide show */
+      // Slider show
       const slides = document.querySelectorAll(".slide");
       let index = 0;
       function showSlide() {
@@ -184,36 +174,41 @@
       }
       setInterval(showSlide, 1500);
 
-      /* Gửi mail với EmailJS */
-      document
-        .getElementById("contact-form")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
+      // Gửi form qua Telegram
+      const BOT_TOKEN = "8292834252:AAFpzPwqXoh0rXxT2lU2J7xH1kXgR0PG26k"; // Thay bằng token bot của bạn
+      const CHAT_ID = "5819411065";     // Thay bằng chat_id nhận tin
 
-          document.getElementById("status").innerText = "Đang gửi...";
+      document.getElementById("contact-form").addEventListener("submit", function(e){
+        e.preventDefault();
+        document.getElementById("status").innerText = "Đang gửi...";
 
-          emailjs
-            .send("service_q6yf2rs", "template_x6jspcy", {
-              name: document.getElementById("name").value,
-              from_name: document.getElementById("name").value,
-              from_phone: document.getElementById("phone").value,
-              from_email: document.getElementById("email").value,
-              from_message: document.getElementById("message").value,
-              time: new Date().toLocaleString(),
-              message: "Có khách mới gửi form",
-            })
-            .then(
-              () => {
-                document.getElementById("status").innerText =
-                  "🎉 Gửi thành công! Chúng tôi sẽ liên hệ sớm.";
-                document.getElementById("contact-form").reset();
-              },
-              () => {
-                document.getElementById("status").innerText =
-                  "❌ Lỗi gửi email. Vui lòng thử lại!";
-              }
-            );
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const email = document.getElementById("email").value;
+        const message = document.getElementById("message").value;
+
+        const text = `📝 Form đăng ký từ landing page:\n\nHọ tên: ${name}\nSĐT: ${phone}\nEmail: ${email}\nNhu cầu: ${message}`;
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.ok){
+            document.getElementById("status").innerText = "🎉 Gửi thành công! Chúng tôi sẽ liên hệ sớm.";
+            document.getElementById("contact-form").reset();
+          } else {
+            document.getElementById("status").innerText = "❌ Lỗi gửi tin nhắn. Vui lòng thử lại!";
+            console.log(data);
+          }
+        })
+        .catch(err => {
+          document.getElementById("status").innerText = "❌ Lỗi gửi tin nhắn. Vui lòng thử lại!";
+          console.error(err);
         });
+      });
     </script>
   </body>
 </html>
